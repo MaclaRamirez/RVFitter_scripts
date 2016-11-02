@@ -75,52 +75,8 @@ def smoothSpec(bin_size,wave,flux):
 def get_dered(Rv, npix):
  
   wave_start=300. #start wavelength value in nm
-  wave_end=3500. #end wavelength value in nm
+  wave_end=4500. #end wavelength value in nm
   wave=np.linspace(wave_start, wave_end, npix)
-  x=[]
-  y=[]
-  Fa=[]
-  Fb=[]
-  AlAvNIR=[]
-  AlAvVIS=[]
-  AlAvUVB=[]
- 
-  coeffsa=[1.,.17699,-.50447,-.02427,.72085,.01979,.77530,.32999]
-  coeffsb=[0.,1.41338,2.28305,1.07233,-5.38434,-.62251,5.30260,-2.09002]
- 
-  #Find Al/Av for each range of wavelengths using equations 1, 2, 3, and 4 of 
-  # Cardelli et al. 1989, (ApJ,345,245).
-  [AlAvNIR.append((0.574/((wave[i]/1000)**1.61))-(0.527/(Rv*(wave[i]/1000)**1.61))) for i in range(npix)]
-  [x.append(1/(wave[i]/1000)) for i in range(npix)]
-  [y.append(x[i]-1.82) for i in range(npix)]
- 
-  x,y = np.array(x), np.array(y)
-  [AlAvVIS.append(np.poly1d(coeffsa[::-1])(y[i]) + np.poly1d(coeffsb[::-1])(y[i])/Rv) for i in range(npix)]
-     
-  for i in range(npix):
-    if x[i] >= 5.9: 
-      Fa.append(-.04473*(x[i]-5.9)**2-.009779*(x[i]-5.9)**3.)
-    else:
-      Fa.append(0)
-       
-  for i in range(npix):
-    if x[i] >= 5.9:
-      Fb.append(.213*(x[i]-5.9)**2+.1207*(x[i]-5.9)**3)
-    else:
-      Fb.append(0)
-       
-  Fa, Fb = np.array(Fa), np.array(Fb)
-   
-  AlAvNIR, AlAvVIS = np.array(AlAvNIR), np.array(AlAvVIS)
- 
- 
-  [AlAvUVB.append(1.752-.316*x[i]-.104/((x[i]-4.67)**2+.341) + Fa[i] + (-3.090+1.825*x[i]+1.206/((x[i]-4.62)**2+.263)+Fb[i])/Rv) for i in range(npix)]
- 
- 
- 
-  #the values from Osterbrock (Rv = 3.1) are:
-  #wave_cat_O = [333.3,357.1,416.7,454.5,555.5,714.3,833.3,1000,1250,2000]
-  #AlAv_cat_O = [1.643,1.575,1.409,1.271,.987,.728,.552,.404,.282,.132]
  
   #Values from Cardelli et al. 1989 for different Rv (Table 3):
   x_cat_C = np.array([2.78,2.27,1.82,1.43,1.11,.8,.63,.46,.29])
@@ -869,16 +825,7 @@ elif objname == 'M17-B311':
    
  
 std_flux = np.array(std_flux)
-std_wave = np.array(std_wave)
- 
-w_std=[]
-
-for i in range(nbands):
-  if max(wave_all) > std_wave[i]:
-      w_std.append(mean(where(np.logical_and(wave_all > std_wave[i]-1, wave_all < std_wave[i]+1))))
- #  else:
- #    w_std.append(std_wave[i]*10)
- 
+std_wave = np.array(std_wave) 
  
 ####################################################################
 #
@@ -929,8 +876,16 @@ scalefactor_array=[]
 rstar_array=[]
 Lum_array=[]
 chi_sq_notred_array = []
+Mo_array = []
 
-Rv_array = np.arange(1.9,5.6,0.1) 
+# Limit the magnitudes to the range covered by cardelli or to avoid the NIR excess in B243, B268, and B275
+if objname == 'M17-B275' or objname == 'M17-B268'  or objname == 'M17-B243':
+    max_std = 5
+else:
+    max_std = len(std_wave[std_wave < 5000])
+
+
+Rv_array = np.arange(1.9,5.5,0.2) 
 for Rv in Rv_array:
     
     print 'Rv = ',Rv
@@ -938,7 +893,7 @@ for Rv in Rv_array:
     wave, a, AlAv, AlAvarray = get_dered(Rv, len(flux_all))
  
     AlAv=np.poly1d(a)(wave_all)
- 
+    AlAv_phot=np.poly1d(a)(std_wave[0:max_std])
  
     ###################
     #obtain best-fit Av
@@ -993,14 +948,8 @@ for Rv in Rv_array:
     slopecoeff_array.append(bestslopecoeff_temp)
     scalecoeff_array.append(bestscalecoeff_temp)
     Av_array.append(Avbest_temp)
-    
-    # the dereddened magnitudes
-    if objname == 'M17-B275' or objname == 'M17-B268'  or objname == 'M17-B243':
-        max_std = 5
-    else:
-        max_std = len(w_std)
-        
-    std_flux_der_temp=std_flux[0:max_std]*10**(.4*AlAv[w_std[0:max_std]]*Avbest_temp)
+            
+    std_flux_der_temp=std_flux[0:max_std]*10**(.4*AlAv_phot*Avbest_temp)
     
     std_flux_der_array.append(std_flux_der_temp)
 
@@ -1035,6 +984,7 @@ for Rv in Rv_array:
         Mbol_t = Ko_t + BC
         L_t =  10**(0.4*(88.72 - Mbol_t))
         lum_temp = np.log10(L_t/Lsun)
+        Mo_array.append(Ko_t)
     elif objname == 'M17-B163':
         Ar_t = 0.751*Avbest_temp #from Cardelli 1998
         Mr = mag_r + 5 - 5*np.log10(d)
@@ -1042,12 +992,14 @@ for Rv in Rv_array:
         Mbol_t = Ro_t + BC
         L_t =  10**(0.4*(88.72 - Mbol_t))
         lum_temp = np.log10(L_t/Lsun)
+        Mo_array.append(Ro_t)
     else:
         Mv = mag_v + 5 - 5*np.log10(d)
         Mo_t = Mv - Avbest_temp
         Mbol_t = Mo_t + BC
         L_t = 10**(0.4*(88.72 - Mbol_t))
         lum_temp = np.log10(L_t/Lsun)
+        Mo_array.append(Mo_t)
         
     Lum_array.append(lum_temp)
     
@@ -1073,7 +1025,7 @@ for Rv in Rv_array:
     # plt.plot(np.log10(wave_k), np.log10(wave_k*10*scalefactor_temp*flux_k))
     # plt.plot(np.log10(w_std), fnew_k, 'o')
     # plt.show()
-       
+
     chi_sq_array.append(np.sum((std_wave[0:max_std]*10*std_flux_der_temp - fnew_k)**2/(std_wave[0:max_std]*10*std_flux_der_temp*0.01)**2)/(len(std_wave[0:max_std])-2))
     chi_sq_notred_array.append(np.sum((std_wave[0:max_std]*10*std_flux_der_temp - fnew_k)**2/(std_wave[0:max_std]*10*std_flux_der_temp*0.01)**2))
     
@@ -1108,6 +1060,7 @@ std_flux_der = std_flux_der_array[index_best]
 scalefactor = scalefactor_array[index_best]
 rstar = rstar_array[index_best]
 lum = Lum_array[index_best]
+Mo = Mo_array[index_best]
 
 out = file('/Users/macla/Dropbox/M17/SEDs/chisq_fit/chi_sq_'+objname+'.dat', 'w')
 out.write('# Best parameters for ' + objname +' (Number of points fitted: '+str(len(std_wave[0:max_std]))+')'+ '\n')
@@ -1115,9 +1068,10 @@ out.write('# Rv = '+str(Rv)+'\n')
 out.write('# Av = '+str(Avbest)+'\n')
 out.write('# Rstar = '+str(rstar)+'\n')
 out.write('# Lum = '+str(lum)+'\n')
-out.write('# Rv \t \t  chi^2 \t \t Av \t \t  Rstar \t \t Lum \n')
+out.write('# M_0 = '+str(Mo)+'\n')
+out.write('# Rv \t \t  chi_red^2 \t \t chi^2 \t\t Av \t \t  Rstar \t \t Lum \t\t M_0 \n')
 for i in range(len(Rv_array)):
-    out.write(str(Rv_array[i])+'\t'+str(chi_sq_array[i])+'\t'+str(chi_sq_notred_array[i])+'\t'+str(Av_array[i])+'\t'+str(rstar_array[i])+'\t'+str(Lum_array[i])+'\n')
+    out.write(str(Rv_array[i])+'\t'+str(chi_sq_array[i])+'\t'+str(chi_sq_notred_array[i])+'\t'+str(Av_array[i])+'\t'+str(rstar_array[i])+'\t'+str(Lum_array[i])+ '\t' +str(Mo_array[i]) + '\n')
 
 out.close()
 
