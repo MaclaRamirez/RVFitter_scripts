@@ -1,0 +1,3 @@
+/Users/ramirez/Dropbox/Projects/M17_binaries/M17_normalized/B111/B111_UVB_20190411T09_barycor.nspec
+/Users/ramirez/Dropbox/Projects/M17_binaries/M17_normalized/B111/B111_UVB_20190413T08_barycor.nspec
+/Users/ramirez/Dropbox/Projects/M17_binaries/M17_normalized/B111/B111_UVB_20190605T05_barycor.nspec
