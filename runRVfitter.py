@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from RVFitter import RVFitter
 import os
 
-plt.switch_backend('QT4Agg')
+plt.switch_backend('QT5Agg')
 
 
 def clicker(event, mode):
@@ -113,9 +113,7 @@ def get_clickValue(rvObject,
 
 def id_func(specsfile):
     filename = os.path.basename(specsfile)
-    print(filename)
     splitted_file = filename.split("_")
-    print(splitted_file)
     starname = splitted_file[0]
     date = splitted_file[2]
     return starname, date
@@ -124,19 +122,18 @@ def id_func(specsfile):
 def parse_args(args):
     parser = argparse.ArgumentParser(
         description='Run RV fitter from command line')
-    parser.add_argument('--debug', action='store_true')
-    # parser.add_argument('--threshold', action='store_true')
-    # parser.add_argument('--asimov', action='store_true')
-    parser.add_argument('--specfile_list', type=str, required=True)
-    parser.add_argument('--line_list', type=str, required=True)
-    # parser.add_argument('--seed', type=int, default=None, required=False)
-    # parser.add_argument('--livetime', type=float, default=None)
-    # parser.add_argument('--var1', type=str, required=True)
-    # parser.add_argument('--val1', type=float, required=True)
-    #  parser.add_argument('--var2', type=str, default=None, required=False)
-    #  parser.add_argument('--val2', type=float, default=[None], required=False)
-    #  parser.add_argument('--output', type=str, required=True)
-    # parser.add_argument('--toy_size', type=int, default=500)
+    parser.add_argument('--debug', action='store_true', help="Debug mode")
+    parser.add_argument('--specfile_list',
+                        type=str,
+                        required=True,
+                        help="Path to files containing of spectra")
+    parser.add_argument(
+        '--line_list',
+        type=str,
+        required=True,
+        help=
+        "File containing line-names, central wavelengths, and plotting windows"
+    )
     return dict(vars(parser.parse_args()))
 
 
@@ -180,7 +177,6 @@ def redo_entire_line(line):
 
 def main(args):
     parsed_args = parse_args(args)
-    print(parsed_args['specfile_list'])
     line_list = parsed_args['line_list']
     with open(parsed_args['specfile_list'], 'r') as f:
         specsfilelist = f.read().splitlines()
