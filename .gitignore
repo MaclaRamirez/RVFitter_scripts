@@ -1,1 +1,3 @@
-*.pkl
+*.pkl.session.vim
+.session.vim
+*_Tim.txt
