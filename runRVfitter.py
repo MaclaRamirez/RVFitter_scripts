@@ -41,11 +41,11 @@ def close_key(event):
         print('Unknown key')
 
 
-def choose_line(rvObject, line):
+def choose_line(star, line):
     print('Do you want to fit this line? (y/n)')
     global skip
     fig, ax = plt.subplots()
-    rvObject.plot_line(line=line,
+    star.plot_line(line=line,
                        ax=ax,
                        title_prefix='Do you want to fit this line? (y/n)\n')
     skip = {}
@@ -55,7 +55,7 @@ def choose_line(rvObject, line):
     return skip['value']
 
 
-def get_clickValue(rvObject,
+def get_clickValue(star,
                    line,
                    position,
                    mode,
@@ -79,7 +79,7 @@ def get_clickValue(rvObject,
             if previous_value is not None:
                 ax.axvline(previous_value, color='green')
         elif mode == 'horizontal':
-            rvObject.plot_line(
+            star.plot_line(
                 line=line,
                 ax=ax,
                 title_prefix=
@@ -191,45 +191,45 @@ def main(args):
         line_list=line_list,
         debug=debug)
 
-    for idx, rvobject in enumerate(myfitter.rvobjects):
+    for idx, star in enumerate(myfitter.stars):
         if idx != 0:
-            rvobject.apply_selecting(standard_epoch=myfitter.rvobjects[0])
-        for line in rvobject.lines:
+            star.apply_selecting(standard_epoch=myfitter.stars[0])
+        for line in star.lines:
             while True:
                 # choosing lines
                 if idx == 0:
-                    skip = choose_line(rvObject=rvobject, line=line)
+                    skip = choose_line(star=star, line=line)
                     line.is_selected = not skip
                 else:
                     skip = not line.is_selected
                 if not skip:
                     line._clear()
                     # Normalizing
-                    leftvalue_horizontal = get_clickValue(rvObject=rvobject,
+                    leftvalue_horizontal = get_clickValue(star=star,
                                                           line=line,
                                                           mode='horizontal',
                                                           position='left')
                     rightvalue_horizontal = get_clickValue(
-                        rvObject=rvobject,
+                        star=star,
                         line=line,
                         mode='horizontal',
                         position='right',
                         previous_value=leftvalue_horizontal)
 
                     line.add_normed_spectrum(
-                        angstrom=rvobject.angstrom,
-                        flux=rvobject.flux,
-                        error=rvobject.flux_errors,
+                        angstrom=star.angstrom,
+                        flux=star.flux,
+                        error=star.flux_errors,
                         leftValueNorm=leftvalue_horizontal,
                         rightValueNorm=rightvalue_horizontal)
                     # Clipping
                     while True:
-                        leftvalue_vertical = get_clickValue(rvObject=rvobject,
+                        leftvalue_vertical = get_clickValue(star=star,
                                                             line=line,
                                                             mode='vertical',
                                                             position='left')
                         rightvalue_vertical = get_clickValue(
-                            rvObject=rvobject,
+                            star=star,
                             line=line,
                             mode='vertical',
                             position='right',
