@@ -1,10 +1,11 @@
 import sys
 import argparse
-import numpy as np
 import matplotlib.pyplot as plt
 from RVFitter import RVFitter
 import os
-plt.switch_backend('QT4Agg')
+
+plt.switch_backend('QT5Agg')
+
 
 def clicker(event, mode):
     # global clickValue
@@ -23,9 +24,11 @@ def clicker(event, mode):
         print("Choose \"vertical\" or \"horizontal\"")
         raise SystemExit
 
+
 def on_key(event):
     if event.key == 'enter':
         plt.close()
+
 
 def close_key(event):
     if event.key == 'y':
@@ -37,18 +40,28 @@ def close_key(event):
     else:
         print('Unknown key')
 
-def choose_line(rvObject, line):
+
+def choose_line(star, line):
     print('Do you want to fit this line? (y/n)')
     global skip
     fig, ax = plt.subplots()
-    rvObject.plot_line(line=line, ax=ax, title_prefix='Do you want to fit this line? (y/n)\n')
+    star.plot_line(line=line,
+                       ax=ax,
+                       title_prefix='Do you want to fit this line? (y/n)\n')
     skip = {}
     skip['value'] = None
     fig.canvas.mpl_connect('key_press_event', lambda event: close_key(event))
     plt.show()
     return skip['value']
 
-def get_clickValue(rvObject, line, position, mode, previous_value=None, fig=None, ax=None):
+
+def get_clickValue(star,
+                   line,
+                   position,
+                   mode,
+                   previous_value=None,
+                   fig=None,
+                   ax=None):
     if fig == None or ax == None:
         fig, ax = plt.subplots()
     else:
@@ -57,13 +70,21 @@ def get_clickValue(rvObject, line, position, mode, previous_value=None, fig=None
     global clickValue
     while True:
         if mode == 'vertical':
-            line.plot_normed_spectrum(ax=ax, title_prefix='Pick {position} boundary wavelength for clipping of\n'.format(position=position))
+            line.plot_normed_spectrum(
+                ax=ax,
+                title_prefix=
+                'Pick {position} boundary wavelength for clipping of\n'.format(
+                    position=position))
             line.plot_clips(ax=ax)
             if previous_value is not None:
                 ax.axvline(previous_value, color='green')
         elif mode == 'horizontal':
-            rvObject.plot_line(line=line, ax=ax,
-                               title_prefix='Pick {position} boundary wavelength for normalizing of\n '.format(position=position))
+            star.plot_line(
+                line=line,
+                ax=ax,
+                title_prefix=
+                'Pick {position} boundary wavelength for normalizing of\n '.
+                format(position=position))
             if previous_value is not None:
                 ax.axhline(previous_value, color='red')
         else:
@@ -72,7 +93,8 @@ def get_clickValue(rvObject, line, position, mode, previous_value=None, fig=None
 
         clickValue = {}
         clickValue['result'] = [None, None]
-        fig.canvas.mpl_connect('button_press_event', lambda event: clicker(event, mode=mode))
+        fig.canvas.mpl_connect('button_press_event',
+                               lambda event: clicker(event, mode=mode))
         fig.canvas.mpl_connect('key_press_event', on_key)
         plt.show()
         if mode == 'vertical':
@@ -88,38 +110,42 @@ def get_clickValue(rvObject, line, position, mode, previous_value=None, fig=None
                 break
             return foundValue
 
+
 def id_func(specsfile):
     filename = os.path.basename(specsfile)
-    print(filename)
     splitted_file = filename.split("_")
-    print(splitted_file)
     starname = splitted_file[0]
     date = splitted_file[2]
     return starname, date
 
+
 def parse_args(args):
     parser = argparse.ArgumentParser(
         description='Run RV fitter from command line')
-    parser.add_argument('--debug', action='store_true')
-    # parser.add_argument('--threshold', action='store_true')
-    # parser.add_argument('--asimov', action='store_true')
-    parser.add_argument('--specfile_list', type=str, required=True)
-    parser.add_argument('--line_list', type=str, required=True)
-    # parser.add_argument('--seed', type=int, default=None, required=False)
-    # parser.add_argument('--livetime', type=float, default=None)
-    # parser.add_argument('--var1', type=str, required=True)
-    # parser.add_argument('--val1', type=float, required=True)
-    #  parser.add_argument('--var2', type=str, default=None, required=False)
-    #  parser.add_argument('--val2', type=float, default=[None], required=False)
-    #  parser.add_argument('--output', type=str, required=True)
-    # parser.add_argument('--toy_size', type=int, default=500)
+    parser.add_argument('--debug', action='store_true', help="Debug mode")
+    parser.add_argument('--specfile_list',
+                        type=str,
+                        required=True,
+                        help="Path to files containing of spectra")
+    parser.add_argument(
+        '--line_list',
+        type=str,
+        required=True,
+        help=
+        "File containing line-names, central wavelengths, and plotting windows"
+    )
     return dict(vars(parser.parse_args()))
+
 
 def continue_clipping(line):
     print('Do you want to continue clipping this line? (y/n)')
     global skip
     fig, ax = plt.subplots()
-    line.plot_normed_spectrum(ax=ax, title_prefix='Regions to be clipped\nDo you want to continue clipping this line? (y/n)\n')
+    line.plot_normed_spectrum(
+        ax=ax,
+        title_prefix=
+        'Regions to be clipped\nDo you want to continue clipping this line? (y/n)\n'
+    )
     line.plot_clips(ax=ax)
     plt.tight_layout()
 
@@ -128,12 +154,17 @@ def continue_clipping(line):
     fig.canvas.mpl_connect('key_press_event', lambda event: close_key(event))
     plt.show()
     return not skip['value']
+
 
 def redo_entire_line(line):
     print('Do you want to re-do the normalizing and clipping? (y/n)')
     global skip
     fig, ax = plt.subplots()
-    line.plot_clipped_spectrum(ax=ax, title_prefix='Line profiles to be fitted\nDo you want to re-do the normalizing and clipping? (y/n)\n')
+    line.plot_clipped_spectrum(
+        ax=ax,
+        title_prefix=
+        'Line profiles to be fitted\nDo you want to re-do the normalizing and clipping? (y/n)\n'
+    )
     line.plot_clips(ax=ax)
     plt.tight_layout()
 
@@ -143,9 +174,9 @@ def redo_entire_line(line):
     plt.show()
     return not skip['value']
 
+
 def main(args):
     parsed_args = parse_args(args)
-    print(parsed_args['specfile_list'])
     line_list = parsed_args['line_list']
     with open(parsed_args['specfile_list'], 'r') as f:
         specsfilelist = f.read().splitlines()
@@ -154,36 +185,62 @@ def main(args):
     if debug:
         specsfilelist = specsfilelist[:1]
 
-
     myfitter = RVFitter.from_specsfilelist_name_flexi(
-        specsfilelist_name=parsed_args['specfile_list'], id_func=id_func, line_list=line_list, debug=debug)
+        specsfilelist_name=parsed_args['specfile_list'],
+        id_func=id_func,
+        line_list=line_list,
+        debug=debug)
 
-    for rvobject in myfitter.rvobjects:
-        for line in rvobject.lines:
+    for idx, star in enumerate(myfitter.stars):
+        if idx != 0:
+            star.apply_selecting(standard_epoch=myfitter.stars[0])
+        for line in star.lines:
             while True:
-                #choosing lines
-                skip = choose_line(rvObject=rvobject, line=line)
+                # choosing lines
+                if idx == 0:
+                    skip = choose_line(star=star, line=line)
+                    line.is_selected = not skip
+                else:
+                    skip = not line.is_selected
                 if not skip:
                     line._clear()
                     # Normalizing
-                    leftvalue_horizontal = get_clickValue(rvObject=rvobject, line=line, mode='horizontal', position='left')
-                    rightvalue_horizontal = get_clickValue(rvObject=rvobject, line=line, mode='horizontal', position='right',
-                                                           previous_value=leftvalue_horizontal)
+                    leftvalue_horizontal = get_clickValue(star=star,
+                                                          line=line,
+                                                          mode='horizontal',
+                                                          position='left')
+                    rightvalue_horizontal = get_clickValue(
+                        star=star,
+                        line=line,
+                        mode='horizontal',
+                        position='right',
+                        previous_value=leftvalue_horizontal)
 
-                    line.add_normed_spectrum(angstrom=rvobject.angstrom, flux=rvobject.flux, error=rvobject.flux_errors,
-                                             leftValueNorm=leftvalue_horizontal, rightValueNorm=rightvalue_horizontal)
+                    line.add_normed_spectrum(
+                        angstrom=star.angstrom,
+                        flux=star.flux,
+                        error=star.flux_errors,
+                        leftValueNorm=leftvalue_horizontal,
+                        rightValueNorm=rightvalue_horizontal)
                     # Clipping
                     while True:
-                        leftvalue_vertical = get_clickValue(rvObject=rvobject, line=line, mode='vertical', position='left')
-                        rightvalue_vertical = get_clickValue(rvObject=rvobject, line=line, mode='vertical', position='right',
-                                                             previous_value=leftvalue_vertical)
+                        leftvalue_vertical = get_clickValue(star=star,
+                                                            line=line,
+                                                            mode='vertical',
+                                                            position='left')
+                        rightvalue_vertical = get_clickValue(
+                            star=star,
+                            line=line,
+                            mode='vertical',
+                            position='right',
+                            previous_value=leftvalue_vertical)
 
-                        line.clip_spectrum(leftClip=leftvalue_vertical, rightClip=rightvalue_vertical)
+                        line.clip_spectrum(leftClip=leftvalue_vertical,
+                                           rightClip=rightvalue_vertical)
 
                         keep_clipping = continue_clipping(line=line)
                         if not keep_clipping:
                             break
-
 
                 else:
                     break
@@ -195,6 +252,7 @@ def main(args):
     myfitter.create_df()
     myfitter.save_df()
     print(myfitter.df)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -3,3 +3,6 @@ __pycache__/*
 .idea
 *.pkl
 .idea/*
+*.pkl.session.vim
+.session.vim
+*_Tim.txt
