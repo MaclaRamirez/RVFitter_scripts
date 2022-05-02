@@ -1,5 +1,6 @@
 from RVFitter import RVFitter
-import pkg_resources
+#  import pkg_resources
+import argparse
 import os
 import copy
 import sys
@@ -17,22 +18,23 @@ def get_tmp_file(filename):
             f.write(tmp_data + "\n")
     return tmp_specsfilelist
 
+def parse_args(args):
+    parser = argparse.ArgumentParser(
+        description='Execute the fitting function from RVFitter')
+    parser.add_argument('--debug', action='store_true', help="Debug mode")
+    parser.add_argument(
+        '--processed_spectra',
+        type=str,
+        required=True,
+        help=
+        "Path to the pickle-file which holds the dataframe."
+    )
+    return dict(vars(parser.parse_args()))
+
 def main(args):
-    line_list = pkg_resources.resource_filename(
-        "RVFitter",
-        "tests/test_data/debug_spectral_lines_RVmeasurement.txt")
-    specsfilelist = pkg_resources.resource_filename(
-        "RVFitter", "tests/test_data/debug_specfile_list.txt")
+    parsed_args = parse_args(args)
 
-    tmp_specsfilelist = get_tmp_file(specsfilelist)
-
-    myfitter = RVFitter.from_specsfilelist_name_flexi(
-        specsfilelist_name=tmp_specsfilelist,
-        line_list=line_list)
-
-    filename = os.path.join(os.path.dirname(specsfilelist),
-                            "B275_speclist.pkl")
-    myfitter.load_df(filename=filename)
+    myfitter = RVFitter.load_from_df_file(parsed_args["processed_spectra"])
 
     collected_fitters = []
     for shape_profile in ["gaussian", "lorentzian"]:
