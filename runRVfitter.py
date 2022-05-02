@@ -127,6 +127,10 @@ def parse_args(args):
                         type=str,
                         required=True,
                         help="Path to files containing of spectra")
+    parser.add_argument('--output_file',
+                        type=str,
+                        required=False,
+                        help="Path to output directory and output file name")
     parser.add_argument(
         '--line_list',
         type=str,
@@ -250,7 +254,7 @@ def main(args):
                     break
 
     myfitter.create_df()
-    myfitter.save_df()
+    myfitter.save_df(filename=parsed_args['output_file'])
     print(myfitter.df)
 
 
