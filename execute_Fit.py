@@ -36,47 +36,52 @@ def main(args):
 
     myfitter = RVFitter.load_from_df_file(parsed_args["processed_spectra"])
 
+    output_file = parsed_args["processed_spectra"].replace(".pkl", "_{suffix}.pkl")
+
     collected_fitters = []
     for shape_profile in ["gaussian", "lorentzian"]:
-        this_fitter = fit_without_constraints(myfitter, shape_profile=shape_profile)
-        this_fitter.label = shape_profile + " without constraints"
+        this_fitter = myfitter.fit_without_constraints(shape_profile=shape_profile)
+        this_output_file = output_file.format(suffix=shape_profile + "_without_constraints")
+        this_fitter.save_fit_result(this_output_file)
         collected_fitters.append(this_fitter)
-        #  myfitter.plot_fit()
-        #  myfitter.plot_residuals()
-        #  myfitter.plot_fit_with_residuals()
 
-        this_fitter = fit_with_constraints(myfitter, shape_profile=shape_profile)
-        this_fitter.label = shape_profile + " with constraints"
+        this_output_file = output_file.format(suffix=shape_profile + "_with_constraints")
+        this_fitter = myfitter.fit_with_constraints(shape_profile=shape_profile)
         collected_fitters.append(this_fitter)
+        this_fitter.save_fit_result(this_output_file)
+
+    #  color_dict = {0: "red", 1: "blue", 2: "green", 3: "orange"}
+    #  fig, axes = myfitter.get_fig_and_axes()
+    #  for idx, this_fitter in enumerate(collected_fitters):
+    #      if idx == 0:
+    #          this_fitter.plot_data(fig=fig, axes=axes)
+    #      this_fitter.plot_fit(fig=fig, axes=axes, plot_dict={"zorder": 2.5, "color": color_dict[idx], "label": this_fitter.label})
+    #  handles, labels = axes[-1, -1].get_legend_handles_labels()
+    #  fig.legend(handles, labels, ncol=2, loc='lower center')
+    #  fig.savefig("test_constraints.pdf")
+    #  plt.show()
+
+    fig, ax_dict = this_fitter.get_fig_and_ax_dict()
 
     color_dict = {0: "red", 1: "blue", 2: "green", 3: "orange"}
-    fig, axes = myfitter.get_fig_and_axes()
     for idx, this_fitter in enumerate(collected_fitters):
         if idx == 0:
-            this_fitter.plot_data(fig=fig, axes=axes)
-        this_fitter.plot_fit(fig=fig, axes=axes, plot_dict={"zorder": 2.5, "color": color_dict[idx], "label": this_fitter.label})
-    handles, labels = axes[-1, -1].get_legend_handles_labels()
+            this_fitter.plot_data_and_residuals(fig=fig, ax_dict=ax_dict)
+        this_fitter.plot_fit_and_residuals(fig=fig,
+                                           ax_dict=ax_dict,
+                                           add_legend_label=True,
+                                           plot_dict={"zorder": 2.5,
+                                                      "color": color_dict[idx],
+                                                      "markersize": "1",
+                                                      },
+                                           plot_dict_res={"color": color_dict[idx],
+                                                          "marker": ".",
+                                                          "linestyle": "None",
+                                                          "markersize": "2"})
+    handles, labels = ax_dict[list(ax_dict.items())[0][0]].get_legend_handles_labels()
+    labels = [this_fitter.label for this_fitter in collected_fitters]
     fig.legend(handles, labels, ncol=2, loc='lower center')
-    fig.savefig("test_constraints.pdf")
     plt.show()
-
-
-def fit_with_constraints(myfitter, shape_profile="gaussian"):
-    # prepare fitting
-    this_fitter = copy.deepcopy(myfitter)
-    this_fitter.shape_profile = shape_profile
-    this_fitter.constrain_parameters(group="cen", constraint_type="epoch")
-    this_fitter.constrain_parameters(group="amp", constraint_type="line_profile")
-    this_fitter.constrain_parameters(group="sig", constraint_type="line_profile")
-    this_fitter.run_fit()
-    return this_fitter
-
-def fit_without_constraints(myfitter, shape_profile="gaussian"):
-    # prepare fitting
-    this_fitter = copy.deepcopy(myfitter)
-    this_fitter.shape_profile = shape_profile
-    this_fitter.run_fit()
-    return this_fitter
 
 if __name__ == "__main__":
     main(sys.argv[1:])
