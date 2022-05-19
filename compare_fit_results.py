@@ -48,15 +48,19 @@ def main(args):
     object_list = []
     for fit_file in fits_to_compare:
         myfitter.load_fit_result(fit_file)
+        myfitter.setup_parameters()
         object_list.append(copy.deepcopy(myfitter))
     comparer = RVFitter_comparison(object_list)
     comparer.create_overview_df()
 
-    for variable in ["cen"]:
-        # no plots for "amp" and "sig" as they are not comparable between lines
-        filename = os.path.join(output_dir, "compare_results_{variable}.png")
-        comparer.compare_fit_results(filename=filename, variable=variable)
-        plt.show()
+    #  for variable in ["cen"]:
+    #      # no plots for "amp" and "sig" as they are not comparable between lines
+    #      filename = os.path.join(output_dir, "compare_results_{variable}.png")
+    #      comparer.compare_fit_results(filename=filename, variable=variable)
+    #      plt.show()
+
+    comparer.plot_fits_and_residuals()
+    plt.show()
     #  print(comparer.df)
 
 
