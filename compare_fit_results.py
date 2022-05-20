@@ -53,14 +53,14 @@ def main(args):
     comparer = RVFitter_comparison(object_list)
     comparer.create_overview_df()
 
-    #  for variable in ["cen"]:
-    #      # no plots for "amp" and "sig" as they are not comparable between lines
-    #      filename = os.path.join(output_dir, "compare_results_{variable}.png")
-    #      comparer.compare_fit_results(filename=filename, variable=variable)
-    #      plt.show()
+    for variable in ["cen"]:
+         # no plots for "amp" and "sig" as they are not comparable between lines
+         filename = os.path.join(output_dir, "compare_results_{variable}.png")
+         comparer.compare_fit_results_1D(filename=filename, variable=variable)
+         plt.show()
 
-    comparer.plot_fits_and_residuals()
-    plt.show()
+    # comparer.plot_fits_and_residuals()
+    # plt.show()
     #  print(comparer.df)
 
 
