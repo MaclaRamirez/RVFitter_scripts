@@ -40,10 +40,11 @@ def main(args):
 
     collected_fitters = []
     for shape_profile in ["voigt", "gaussian", "lorentzian"]:
-        this_fitter = myfitter.fit_without_constraints(shape_profile=shape_profile)
-        this_output_file = output_file.format(suffix=shape_profile + "_without_constraints")
-        this_fitter.save_fit_result(this_output_file)
-        collected_fitters.append(this_fitter)
+        if shape_profile != "voigt":
+            this_fitter = myfitter.fit_without_constraints(shape_profile=shape_profile)
+            this_output_file = output_file.format(suffix=shape_profile + "_without_constraints")
+            this_fitter.save_fit_result(this_output_file)
+            collected_fitters.append(this_fitter)
 
         this_output_file = output_file.format(suffix=shape_profile + "_with_constraints")
         this_fitter = myfitter.fit_with_constraints(shape_profile=shape_profile)
