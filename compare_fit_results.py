@@ -38,6 +38,7 @@ def main(args):
 
     myfitter = RVFitter.load_from_df_file(parsed_args["processed_spectra"])
     fits_to_compare = config["fits_to_compare"]
+    output_folder = config["output_folder"]
 
     dirnames = [os.path.dirname(fit_file) for fit_file in fits_to_compare]
     dirnames = list(set(dirnames))
@@ -50,19 +51,18 @@ def main(args):
         myfitter.load_fit_result(fit_file)
         myfitter.setup_parameters()
         object_list.append(copy.deepcopy(myfitter))
-    comparer = RVFitter_comparison(object_list)
+    comparer = RVFitter_comparison(object_list, output_folder)
     comparer.create_overview_df()
 
     for variable in ["cen"]:
          # no plots for "amp" and "sig" as they are not comparable between lines
-         filename = os.path.join(output_dir, "compare_results_{variable}.png")
-         comparer.compare_fit_results_1D(filename=filename, variable=variable)
-         plt.show()
+         comparer.compare_fit_results_1D(variable=variable)
 
-    # comparer.plot_fits_and_residuals()
-    # plt.show()
-    #  print(comparer.df)
+    comparer.plot_fits_and_residuals()
+    plt.show()
 
+    for variable in ["cen"]:#, "amp", "sig"]:
+        comparer.write_overview_table(variable=variable)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
