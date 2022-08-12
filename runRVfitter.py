@@ -254,7 +254,12 @@ def main(args):
                     break
 
     myfitter.create_df()
-    myfitter.save_df(filename=parsed_args['output_file'])
+    if not parsed_args['output_file']:
+        myfitter.save_df(filename='processed_spectra.pkl')
+        print('WARNING: no output_file specified, writing results in processed_spectra.pkl')
+    else:
+        myfitter.save_df(filename=parsed_args['output_file'])
+        print('Writing results in processed_spectra.pkl')
     print(myfitter.df)
 
 
