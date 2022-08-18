@@ -2,7 +2,7 @@
 
 ## Installation
 
-Clone the repository and install the package in development mode:
+Clone the repository and install requirements:
 
 ```
 pip install -r requirements.txt
@@ -99,7 +99,7 @@ python compare_fit_results.py --processed_spectra B111_processed_spectra.pkl --f
 where **fits_to_compare.yaml** looks like:
 
 ```
-output_folder: RVFitter_results/B111/ <br>
+output_folder: RVFitter_results/B111/
 fits_to_compare:
   - B111_processed_spectra_gaussian_with_constraints.pkl
   - B111_processed_spectra_gaussian_without_constraints.pkl
