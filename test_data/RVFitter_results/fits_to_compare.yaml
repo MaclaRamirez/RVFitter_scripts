@@ -1,0 +1,8 @@
+output_folder: ../test_data/RVFitter_results/
+fits_to_compare:
+  - ../test_data/RVFitter_results/B111_processed_spectra_gaussian_with_constraints.pkl
+  - ../test_data/RVFitter_results//B111_processed_spectra_gaussian_without_constraints.pkl
+  - ../test_data/RVFitter_results//B111_processed_spectra_lorentzian_with_constraints.pkl
+  - ../test_data/RVFitter_results//B111_processed_spectra_lorentzian_without_constraints.pkl
+  - ../test_data/RVFitter_results//B111_processed_spectra_voigt_with_constraints.pkl
+  - ../test_data/RVFitter_results//B111_processed_spectra_voigt_without_constraints.pkl

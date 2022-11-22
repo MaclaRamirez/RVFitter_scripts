@@ -1,0 +1,3 @@
+../test_data/B111_UVB_20190411T09_barycor.nspec
+../test_data/B111_UVB_20190413T08_barycor.nspec
+../test_data/B111_UVB_20190605T05_barycor.nspec
