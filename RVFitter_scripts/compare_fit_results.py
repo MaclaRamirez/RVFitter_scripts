@@ -4,7 +4,7 @@ import sys
 import copy
 import os
 import matplotlib.pyplot as plt
-from RVFitter import RVFitter
+from RVFitter import RVFitter#,  RVFitter_comparison
 from RVFitter.RVFitter_comparison import RVFitter_comparison
 
 def parse_args(args):

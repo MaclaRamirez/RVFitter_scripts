@@ -6,3 +6,8 @@ __pycache__/*
 *.pkl.session.vim
 .session.vim
 *_Tim.txt
+Params_B275.dat
+configs/B275_speclist.txt
+myfile.txt
+plot_RVFitter_results.py
+*ipynb*
