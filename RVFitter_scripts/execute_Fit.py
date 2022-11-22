@@ -1,10 +1,11 @@
 from RVFitter import RVFitter
+from RVFitter import utils
 #  import pkg_resources
 import argparse
 import os
-import copy
 import sys
-import matplotlib.pyplot as plt
+import pandas as pd
+
 
 def get_tmp_file(filename):
     with open(filename, "r") as f:
@@ -18,6 +19,7 @@ def get_tmp_file(filename):
             f.write(tmp_data + "\n")
     return tmp_specsfilelist
 
+
 def parse_args(args):
     parser = argparse.ArgumentParser(
         description='Execute the fitting function from RVFitter')
@@ -26,31 +28,75 @@ def parse_args(args):
         '--processed_spectra',
         type=str,
         required=True,
-        help=
-        "Path to the pickle-file which holds the dataframe."
-    )
+        help="Path to the pickle-file which holds the dataframe.")
+    parser.add_argument(
+        '--line_list',
+        type=str,
+        required=False,
+        help="Path to the line-list which should be used in the fit.",
+        default=None)
     return dict(vars(parser.parse_args()))
+
 
 def main(args):
     parsed_args = parse_args(args)
+    if parsed_args["line_list"] is not None:
+        print("Reading line list from file.")
+        line_list = utils.read_line_list(parsed_args["line_list"])
+    else:
+        line_list = None
 
-    myfitter = RVFitter.load_from_df_file(parsed_args["processed_spectra"])
+    df = pd.read_pickle(parsed_args["processed_spectra"])
 
-    output_file = parsed_args["processed_spectra"].replace(".pkl", "_{suffix}.pkl")
+    skimmed_df = utils.manipulate_df_by_line_list(df, line_list)
 
-    collected_fitters = []
+    myfitter = RVFitter.load_from_df(skimmed_df)
+
+    if line_list is not None:
+        suffix = os.path.basename(parsed_args["line_list"]).replace(".txt", "")
+
+        directory, filename = os.path.split(parsed_args["processed_spectra"])
+        output_processed_df = os.path.join(directory, filename.split(".")[0] + "_" + suffix + ".pkl")
+
+        info = f"""
+        Writing out dataframe with hash for reproduction.
+        Hash: {suffix}
+        Line list: {line_list}
+        Output file: {output_processed_df}
+        """
+        print(info)
+        logfile = os.path.join(directory, "log_" + suffix + ".txt")
+        with open(logfile, "w") as f:
+            f.write(info)
+        myfitter.save_df(output_processed_df)
+    else:
+        suffix = ""
+
+    output_file = parsed_args["processed_spectra"].replace(
+        ".pkl", "_{suffix}.pkl")
+
     for shape_profile in ["voigt", "gaussian", "lorentzian"]:
         # if shape_profile != "voigt":
-        this_fitter = myfitter.fit_without_constraints(shape_profile=shape_profile)
-        this_output_file = output_file.format(suffix=shape_profile + "_without_constraints")
+        this_fitter = myfitter.fit_without_constraints(
+            shape_profile=shape_profile)
+        if suffix != "":
+            this_output_file = output_file.format(suffix=shape_profile +
+                                                  "_without_constraints_" + suffix)
+        else:
+            this_output_file = output_file.format(suffix=shape_profile +
+                                                  "_without_constraints")
         this_fitter.save_fit_result(this_output_file)
-        collected_fitters.append(this_fitter)
 
-        this_output_file = output_file.format(suffix=shape_profile + "_with_constraints")
-        this_fitter = myfitter.fit_with_constraints(shape_profile=shape_profile)
-        collected_fitters.append(this_fitter)
+        if suffix != "":
+            this_output_file = output_file.format(suffix=shape_profile +
+                                                  "_with_constraints_" + suffix)
+        else:
+            this_output_file = output_file.format(suffix=shape_profile +
+                                                  "_with_constraints")
+        this_fitter = myfitter.fit_with_constraints(
+            shape_profile=shape_profile)
         this_fitter.save_fit_result(this_output_file)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
