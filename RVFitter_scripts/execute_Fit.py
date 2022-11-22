@@ -85,6 +85,8 @@ def main(args):
         else:
             this_output_file = output_file.format(suffix=shape_profile +
                                                   "_without_constraints")
+        this_fitter = myfitter.fit_without_constraints(
+            shape_profile=shape_profile)
         this_fitter.save_fit_result(this_output_file)
 
         if suffix != "":
