@@ -42,6 +42,7 @@ def get_available_fit_results(processed_spectrum):
 def main(args):
     parsed_args = parse_args(args)
     processed_spectra = glob.glob(parsed_args["pattern"])
+
     print(processed_spectra)
     print("Found {n} processed spectra".format(n=len(processed_spectra)))
     # processed_spectra = glob.glob('/Users/ramirez/Dropbox/Projects/M17_binaries/RVFitter_results/*/')
