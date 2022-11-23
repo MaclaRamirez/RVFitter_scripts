@@ -89,16 +89,22 @@ def main(args):
             shape_profile=shape_profile)
         this_fitter.save_fit_result(this_output_file)
 
-        if suffix != "":
-            this_output_file = output_file.format(suffix=shape_profile +
+        if line_list is not None:
+            if suffix != "":
+                this_output_file = output_file.format(suffix=shape_profile +
                                                   "_with_constraints_" + suffix)
-        else:
-            this_output_file = output_file.format(suffix=shape_profile +
+            else:
+                this_output_file = output_file.format(suffix=shape_profile +
                                                   "_with_constraints")
-        this_fitter = myfitter.fit_with_constraints(
-            shape_profile=shape_profile)
-        this_fitter.save_fit_result(this_output_file)
+        
+            this_fitter = myfitter.fit_with_constraints(
+                shape_profile=shape_profile)
+            this_fitter.save_fit_result(this_output_file)
 
+        else: 
+            print("No line list provided: not running fits with constraints.")
+        
+            
 
 if __name__ == "__main__":
     main(sys.argv[1:])
