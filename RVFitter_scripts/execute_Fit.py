@@ -75,7 +75,7 @@ def main(args):
     output_file = parsed_args["processed_spectra"].replace(
         ".pkl", "_{suffix}.pkl")
 
-    for shape_profile in ["voigt", "gaussian", "lorentzian"]:
+    for shape_profile in ["gaussian", "lorentzian"]:#"voigt", 
         # if shape_profile != "voigt":
         this_fitter = myfitter.fit_without_constraints(
             shape_profile=shape_profile)
