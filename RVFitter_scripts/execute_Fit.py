@@ -35,6 +35,12 @@ def parse_args(args):
         required=False,
         help="Path to the line-list which should be used in the fit.",
         default=None)
+    parser.add_argument(
+            "--drop_duplicates",
+            action="store_true",
+            help="Drop duplicates from the dataframe.",
+            default=False
+            )
     return dict(vars(parser.parse_args()))
 
 
@@ -49,6 +55,8 @@ def main(args):
     df = pd.read_pickle(parsed_args["processed_spectra"])
 
     skimmed_df = utils.manipulate_df_by_line_list(df, line_list)
+    if parsed_args["drop_duplicates"]:
+        skimmed_df = skimmed_df.drop_duplicates(subset=["line_name", "line_profile"])
 
     myfitter = RVFitter.load_from_df(skimmed_df)
 
@@ -56,7 +64,9 @@ def main(args):
         suffix = os.path.basename(parsed_args["line_list"]).replace(".txt", "")
 
         directory, filename = os.path.split(parsed_args["processed_spectra"])
-        output_processed_df = os.path.join(directory, filename.split(".")[0] + "_" + suffix + ".pkl")
+        output_processed_df = os.path.join(
+            directory,
+            filename.split(".")[0] + "_" + suffix + ".pkl")
 
         info = f"""
         Writing out dataframe with hash for reproduction.
@@ -75,13 +85,11 @@ def main(args):
     output_file = parsed_args["processed_spectra"].replace(
         ".pkl", "_{suffix}.pkl")
 
-    for shape_profile in ["gaussian", "lorentzian"]:#"voigt", 
+    for shape_profile in ["gaussian", "lorentzian"]:  #"voigt",
         # if shape_profile != "voigt":
-        this_fitter = myfitter.fit_without_constraints(
-            shape_profile=shape_profile)
         if suffix != "":
-            this_output_file = output_file.format(suffix=shape_profile +
-                                                  "_without_constraints_" + suffix)
+            this_output_file = output_file.format(
+                suffix=shape_profile + "_without_constraints_" + suffix)
         else:
             this_output_file = output_file.format(suffix=shape_profile +
                                                   "_without_constraints")
@@ -91,20 +99,19 @@ def main(args):
 
         if line_list is not None:
             if suffix != "":
-                this_output_file = output_file.format(suffix=shape_profile +
-                                                  "_with_constraints_" + suffix)
+                this_output_file = output_file.format(
+                    suffix=shape_profile + "_with_constraints_" + suffix)
             else:
                 this_output_file = output_file.format(suffix=shape_profile +
-                                                  "_with_constraints")
-        
+                                                      "_with_constraints")
+
             this_fitter = myfitter.fit_with_constraints(
                 shape_profile=shape_profile)
             this_fitter.save_fit_result(this_output_file)
 
-        else: 
+        else:
             print("No line list provided: not running fits with constraints.")
-        
-            
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
