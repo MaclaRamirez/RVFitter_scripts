@@ -45,7 +45,6 @@ def main(args):
 
     print(processed_spectra)
     print("Found {n} processed spectra".format(n=len(processed_spectra)))
-    # processed_spectra = glob.glob('/Users/ramirez/Dropbox/Projects/M17_binaries/RVFitter_results/*/')
 
     list_of_dfs = []
     for processed_spectrum in processed_spectra:
