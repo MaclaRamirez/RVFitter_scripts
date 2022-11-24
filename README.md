@@ -58,9 +58,17 @@ Fits Gaussian, Lorenzian and Voigt profiles for all the selected lines. It execu
 
 - with constrains: All lines for a single epoch are forced to have the same velocity, while a given line for all epochs is forced to have the same amplitude and sigma.
 
+If a line list is specified, the fit is only executed using the lines in the list. If no line is provided, only the fits without constraints are executed.
+
+In case the original line list had duplicates (this was possible in an earlier version of RVFitter) there is an option to remove these duplicates. 
+
 INPUT:
 
 - **--processed_spectra**: pkl file containing the re-normalized and clipped spectra
+
+- **--line_list (optional)**: txt file with three columns separated by one space. line_name line_center line_width : the line_width refers to the desired plotting range 
+
+- **--drop_duplicates (optional)**: option to remove lines that are duplicated in the processed_spectra. To use this option you need to provide a CLEAN line_list in the previous option 
 
 OUTPUT:
 
