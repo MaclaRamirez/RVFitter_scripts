@@ -35,13 +35,18 @@ def parse_args(args):
         required=False,
         help="Path to the line-list which should be used in the fit.",
         default=None)
-    parser.add_argument(
-            "--drop_duplicates",
-            action="store_true",
-            help="Drop duplicates from the dataframe.",
-            default=False
-            )
-    return dict(vars(parser.parse_args()))
+    parser.add_argument("--drop_duplicates",
+                        action="store_true",
+                        help="Drop duplicates from the dataframe.",
+                        default=False)
+
+    parsed_args = dict(vars(parser.parse_args()))
+    if parsed_args["drop_duplicates"]:
+        print(
+            "WARNING: Dropping duplicates from dataframe. This is a dangerous setting and it points towards misusage if it is needed."
+        )
+
+    return parsed_args
 
 
 def main(args):
@@ -56,7 +61,8 @@ def main(args):
 
     skimmed_df = utils.manipulate_df_by_line_list(df, line_list)
     if parsed_args["drop_duplicates"]:
-        skimmed_df = skimmed_df.drop_duplicates(subset=["line_name", "line_profile"])
+        skimmed_df = skimmed_df.drop_duplicates(
+            subset=["line_name", "line_profile"])
 
     myfitter = RVFitter.load_from_df(skimmed_df)
 
