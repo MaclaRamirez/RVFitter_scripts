@@ -62,7 +62,7 @@ def main(args):
     skimmed_df = utils.manipulate_df_by_line_list(df, line_list)
     if parsed_args["drop_duplicates"]:
         skimmed_df = skimmed_df.drop_duplicates(
-            subset=["line_name", "line_profile"])
+            subset=["line_name", "line_profile", "date"])
 
     myfitter = RVFitter.load_from_df(skimmed_df)
 
