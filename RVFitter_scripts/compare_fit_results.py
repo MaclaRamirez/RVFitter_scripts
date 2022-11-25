@@ -58,7 +58,7 @@ def main(args):
 
     for variable in ["cen"]:
          # no plots for "amp" and "sig" as they are not comparable between lines
-         comparer.compare_fit_results_1D(variable=variable, suffix=suffix)
+         comparer.compare_fit_results_1D(variable=variable, suffix=prefix)
     
     figname = os.path.join(
                 output_folder, prefix + "_fits_and_residuals.png")
