@@ -41,6 +41,7 @@ def main(args):
     fits_to_compare = config["fits_to_compare"]
     output_folder = config["output_folder"]
 
+    suffix = os.path.basename(parsed_args["processed_spectra"]).replace(".pkl", "")
     dirnames = [os.path.dirname(fit_file) for fit_file in fits_to_compare]
     dirnames = list(set(dirnames))
     if len(dirnames) != 1:
@@ -57,11 +58,13 @@ def main(args):
 
     for variable in ["cen"]:
          # no plots for "amp" and "sig" as they are not comparable between lines
-         comparer.compare_fit_results_1D(variable=variable)
-
-    comparer.plot_fits_and_residuals()
+         comparer.compare_fit_results_1D(variable=variable, suffix=suffix)
+    
+    figname = os.path.join(
+                output_folder, suffix + "_fits_and_residuals.png")
+    comparer.plot_fits_and_residuals(figname=figname)
     plt.show()
-
+    
     for variable in ["cen"]:#, "amp", "sig"]:
         comparer.write_overview_table(variable=variable)
 
