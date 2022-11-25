@@ -65,8 +65,11 @@ def main(args):
     comparer.plot_fits_and_residuals(figname=figname)
     plt.show()
     
+    table_name = os.path.join(
+                output_folder, "results_" + prefix + "_" + variable + ".tex")
+
     for variable in ["cen"]:#, "amp", "sig"]:
-        comparer.write_overview_table(variable=variable)
+        comparer.write_overview_table(variable=variable, table_name=table_name)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
