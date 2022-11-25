@@ -41,7 +41,7 @@ def main(args):
     fits_to_compare = config["fits_to_compare"]
     output_folder = config["output_folder"]
 
-    suffix = os.path.basename(parsed_args["processed_spectra"]).replace(".pkl", "")
+    prefix = os.path.basename(parsed_args["processed_spectra"]).replace(".pkl", "")
     dirnames = [os.path.dirname(fit_file) for fit_file in fits_to_compare]
     dirnames = list(set(dirnames))
     if len(dirnames) != 1:
@@ -61,7 +61,7 @@ def main(args):
          comparer.compare_fit_results_1D(variable=variable, suffix=suffix)
     
     figname = os.path.join(
-                output_folder, suffix + "_fits_and_residuals.png")
+                output_folder, prefix + "_fits_and_residuals.png")
     comparer.plot_fits_and_residuals(figname=figname)
     plt.show()
     
